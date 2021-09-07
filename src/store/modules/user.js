@@ -1,41 +1,61 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { login, logout, loginUserInfo, loginStatus } from '@/api/login'
+import { creatLoginWindow } from '@/utils/loginUtil'
+import router, { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
-    token: getToken(),
-    name: '',
-    avatar: ''
+    isLoggedIn: false, // 判断当前登陆状态
+    name: '', // 姓名
+    userName: '', // 用户名
+    avatar: '', // 头像
+    roleList: [], // 角色列表
+    permissionList: [], // 权限列表
+    pagePermission: [] // 当前页面的子权限
   }
 }
 
 const state = getDefaultState()
 
 const mutations = {
-  RESET_STATE: (state) => {
+  SET_LOGGED_IN: (state, flag) => {
+    state.isLoggedIn = flag
+  },
+  SET_LOGOUT: (state) => {
     Object.assign(state, getDefaultState())
   },
-  SET_TOKEN: (state, token) => {
-    state.token = token
+  SET_PERMISSION_LIST: (state, data) => {
+    state.permissionList = data || []
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  SET_ROLE_LIST: (state, roleList) => {
+    state.roleList = roleList || []
   },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  SET_USER_INFO(state, userInfo) {
+    state.userName = userInfo.userName
+    state.name = userInfo.name
+    state.avatar = userInfo.avatar
+  },
+  SET_PAGE_PERMISSION(state, route) {
+    const pagePermission = {}
+    if (route && route.meta && route.meta.id) {
+      const pid = route.meta.id
+      const permissionList = state.permissionList.filter(item => {
+        return item.pid === pid
+      })
+      permissionList.forEach(item => {
+        pagePermission[item.code] = item
+      })
+    }
+    state.pagePermission = pagePermission
   }
 }
 
 const actions = {
-  // user login
+  // 登录
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+      login(username.trim(), password).then(() => {
+        commit('SET_LOGGED_IN', true)
         resolve()
       }).catch(error => {
         reject(error)
@@ -43,20 +63,12 @@ const actions = {
     })
   },
 
-  // get user info
-  getInfo({ commit, state }) {
+  loginUser({ commit }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          return reject('Verification failed, please Login again.')
-        }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+      loginUserInfo().then(({ data } = {}) => {
+        commit('SET_USER_INFO', { ...data, avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif' })
+        commit('SET_ROLE_LIST', data.roleIdList)
+        commit('SET_LOGGED_IN', true)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -64,27 +76,57 @@ const actions = {
     })
   },
 
-  // user logout
-  logout({ commit, state }) {
+  loginStatus({ commit }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
+      loginStatus().then(({ data } = {}) => {
+        commit('SET_PERMISSION_LIST', data)
+        resolve(data)
       }).catch(error => {
         reject(error)
       })
     })
   },
 
-  // remove token
-  resetToken({ commit }) {
-    return new Promise(resolve => {
-      removeToken() // must remove  token  first
-      commit('RESET_STATE')
-      resolve()
-    })
+  // 用户主动退出登录
+  logOut({ commit, rootState }) {
+    if (rootState.app.useSSO) {
+      commit('SET_LOGOUT')
+      location.href = rootState.app.logoutUrl
+    } else {
+      logout().then(() => {
+        resetRouter() // TODO:
+        router.push('/login')
+        commit('SET_LOGOUT')
+        setTimeout(() => {
+          location.reload()
+        }, 100)
+      }).catch(e => {
+        console.log(e)
+      })
+    }
+  },
+
+  // API返回当前状态为"未登录"，前端做退出登录处理
+  logOutByFetch({ commit, rootState }, { authUrl, needNewWindow }) {
+    console.log('LogOutByFetch', authUrl, needNewWindow)
+    console.log('authUrl', authUrl)
+    console.log('rootState', rootState.app.useSSO)
+    if (rootState.app.useSSO) {
+      if (needNewWindow) {
+        creatLoginWindow(authUrl)
+      } else {
+        window.location.href = authUrl
+      }
+    } else {
+      if (needNewWindow) {
+        creatLoginWindow()
+      } else {
+        router.push('/login')
+        setTimeout(() => {
+          location.reload()
+        }, 100)
+      }
+    }
   }
 }
 

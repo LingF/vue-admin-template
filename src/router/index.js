@@ -4,7 +4,8 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 /* Layout */
-import Layout from '@/layout'
+import Layout from '@/layout/index'
+// import EmptyLayout from '@/layout/emptyLayout'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -44,6 +45,12 @@ export const constantRoutes = [
   },
 
   {
+    path: '/403',
+    component: () => import('@/views/403'),
+    hidden: true
+  },
+
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -58,6 +65,7 @@ export const constantRoutes = [
   {
     path: '/example',
     component: Layout,
+    oneLevel: true,
     redirect: '/example/table',
     name: 'Example',
     meta: { title: 'Example', icon: 'el-icon-s-help' },
@@ -80,6 +88,7 @@ export const constantRoutes = [
   {
     path: '/form',
     component: Layout,
+    oneLevel: true,
     children: [
       {
         path: 'index',
@@ -93,6 +102,7 @@ export const constantRoutes = [
   {
     path: '/nested',
     component: Layout,
+    oneLevel: true,
     redirect: '/nested/menu1',
     name: 'Nested',
     meta: {
@@ -152,6 +162,7 @@ export const constantRoutes = [
   {
     path: 'external-link',
     component: Layout,
+    oneLevel: true,
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
@@ -176,6 +187,15 @@ const router = createRouter()
 export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
+}
+
+export const asyncPageMap = {
+  /**
+   * 权限系统默认
+   * */
+  'account-manage': () => import('@/views/account/account/index'), // 账号管理
+  'role-manage': () => import('@/views/account/role/index'), // 角色管理
+  'permission-manage': () => import('@/views/account/permission/index'), // 权限管理
 }
 
 export default router

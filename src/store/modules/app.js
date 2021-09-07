@@ -5,7 +5,9 @@ const state = {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
   },
-  device: 'desktop'
+  device: 'desktop',
+  useSSO: true, // 是否使用单点登录
+  logoutUrl: process.env.BASE_API + '/api/winCas/logout'
 }
 
 const mutations = {
