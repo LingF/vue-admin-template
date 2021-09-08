@@ -81,6 +81,12 @@ export const constantRoutes = [
         name: 'Tree',
         component: () => import('@/views/tree/index'),
         meta: { title: 'Tree', icon: 'tree' }
+      },
+      {
+        path: 'test',
+        name: 'test',
+        component: () => import('@/views/mytest/my-test/index'),
+        meta: { title: 'test', icon: 'tree' }
       }
     ]
   },
@@ -195,7 +201,7 @@ export const asyncPageMap = {
    * */
   'account-manage': () => import('@/views/account/account/index'), // 账号管理
   'role-manage': () => import('@/views/account/role/index'), // 角色管理
-  'permission-manage': () => import('@/views/account/permission/index'), // 权限管理
+  'permission-manage': () => import('@/views/account/permission/index') // 权限管理
 }
 
 export default router

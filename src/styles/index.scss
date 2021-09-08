@@ -62,4 +62,52 @@ div:focus {
 // main-container global css
 .app-container {
   padding: 20px;
+  .el-pagination {
+    margin-top: 20px;
+  }
+}
+
+// 搜索表单
+.common-search-form {
+  > .el-form-item {
+    margin-bottom: 12px;
+  }
+}
+
+// dialog
+.common-dialog-form {
+  .form-module-title {
+    margin-bottom: 25px;
+    &:not(:first-child) {
+      padding-top: 25px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(208, 208, 208, 0.48);
+    }
+  }
+  .el-select,
+  .el-date-editor.el-input,
+  .el-date-editor.el-input__inner {
+    width: 100%;
+  }
+}
+
+.common-dialog-form-single {
+  .form-module-title {
+    margin-bottom: 25px;
+    &:not(:first-child) {
+      padding-top: 25px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(208, 208, 208, 0.48);
+    }
+  }
+  .el-select,
+  .el-date-editor.el-input,
+  .el-date-editor.el-input__inner {
+    width: 100%;
+  }
+}
+
+// 其他
+.el-button + .el-dropdown {
+  margin-left: 10px;
 }

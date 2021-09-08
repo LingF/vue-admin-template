@@ -1,7 +1,7 @@
-import request from '@/utils/request'
+import fetch from '@/fetch'
 
 export function getList(params) {
-  return request({
+  return fetch({
     url: '/vue-admin-template/table/list',
     method: 'get',
     params

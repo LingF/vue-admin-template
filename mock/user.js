@@ -80,5 +80,32 @@ module.exports = [
         data: 'success'
       }
     }
+  },
+
+  {
+    url: '/api/winSecurity/v1/access/getLoginUserInfo',
+    type: 'get',
+    response: _ => {
+      return {
+        code: 200,
+        data: {
+          name: 'mock',
+          userName: 'mock'
+        }
+      }
+    }
+  },
+
+  {
+    url: '/api/winSecurity/v1/access/getLoginUserResourceList',
+    type: 'get',
+    response: _ => {
+      return {
+        code: 200,
+        data: {
+          resourceList: []
+        }
+      }
+    }
   }
 ]
